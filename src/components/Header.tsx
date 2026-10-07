@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bus, Bell, Smartphone, Monitor } from 'lucide-react';
+import { Bus, Bell, Smartphone, Monitor, Activity } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: 'arrivals' | 'routes' | 'mrt' | 'journey' | 'bookmarks';
@@ -10,6 +10,7 @@ interface HeaderProps {
   setIsMobileFrame: (val: boolean) => void;
   alertsCount: number;
   onOpenAlerts: () => void;
+  onOpenApiMonitor?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   setIsMobileFrame,
   alertsCount,
   onOpenAlerts,
+  onOpenApiMonitor,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-[#4E1257] text-white border-b border-[#6B1A77] shadow-sm">
@@ -129,6 +131,18 @@ export const Header: React.FC<HeaderProps> = ({
               A+
             </button>
           </div>
+
+          {/* API Health & Gateway Monitor */}
+          {onOpenApiMonitor && (
+            <button
+              onClick={onOpenApiMonitor}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10 transition-colors text-purple-200 hover:text-white text-xs font-semibold"
+              title="LTA API & Health Diagnostics"
+            >
+              <Activity className="w-4 h-4 text-emerald-400" />
+              <span className="hidden xl:inline">API</span>
+            </button>
+          )}
 
           {/* Service Alerts trigger */}
           <button

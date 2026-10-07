@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Header } from './components/Header';
 import { BusStopHeader } from './components/BusStopHeader';
 import { BusArrivalCard } from './components/BusArrivalCard';
@@ -10,6 +10,8 @@ import { BookmarksView } from './components/BookmarksView';
 import { ServiceAlertsBanner } from './components/ServiceAlertsBanner';
 import { RouteExplorerView } from './components/RouteExplorerView';
 import { MobileFrame } from './components/MobileFrame';
+import { ApiMonitorModal } from './components/ApiMonitorModal';
+import { fetchLtaBusArrival } from './services/ltaApi';
 import {
   SINGAPORE_BUS_STOPS,
   INITIAL_SERVICES_BY_STOP,
@@ -42,6 +44,7 @@ export default function App() {
   // Modals
   const [selectedRouteModal, setSelectedRouteModal] = useState<string | null>(null);
   const [showAlertsModal, setShowAlertsModal] = useState(false);
+  const [showApiMonitorModal, setShowApiMonitorModal] = useState(false);
 
   // Play subtle synthetic audio chime
   const playArrivalChime = () => {
@@ -64,6 +67,26 @@ export default function App() {
     }
   };
 
+  // Fetch real or simulated data from /api/bus-arrival
+  const loadStopArrivalsFromApi = useCallback(async (stopId: string) => {
+    try {
+      const result = await fetchLtaBusArrival(stopId);
+      if (result.services && result.services.length > 0) {
+        setServicesData((prev) => ({
+          ...prev,
+          [stopId]: result.services,
+        }));
+      }
+    } catch {
+      // Keep existing data on network error
+    }
+  }, []);
+
+  // Fetch from API on stop change
+  useEffect(() => {
+    loadStopArrivalsFromApi(currentStop.id);
+  }, [currentStop.id, loadStopArrivalsFromApi]);
+
   // Live timer countdown effect
   useEffect(() => {
     const timer = setInterval(() => {
@@ -79,9 +102,12 @@ export default function App() {
     return () => clearInterval(timer);
   }, [currentStop.id, audioAlerts]);
 
-  // Simulate arrival updates
+  // Simulate arrival updates or re-fetch from API
   const triggerRefreshCycle = () => {
     setIsRefreshing(true);
+    // Background re-fetch from API
+    loadStopArrivalsFromApi(currentStop.id);
+
     setTimeout(() => {
       setServicesData((prev) => {
         const currentServices = prev[currentStop.id] || [];
@@ -301,6 +327,7 @@ export default function App() {
         setIsMobileFrame={setIsMobileFrame}
         alertsCount={SERVICE_ALERTS.length}
         onOpenAlerts={() => setShowAlertsModal(true)}
+        onOpenApiMonitor={() => setShowApiMonitorModal(true)}
       />
 
       {/* Main Content Area */}
@@ -335,6 +362,13 @@ export default function App() {
           onCloseModal={() => setShowAlertsModal(false)}
         />
       )}
+
+      {/* LTA DataMall API & Health Monitor Dialog */}
+      <ApiMonitorModal
+        isOpen={showApiMonitorModal}
+        onClose={() => setShowApiMonitorModal(false)}
+        defaultStopCode={currentStop.id}
+      />
 
       {/* Civic Municipal Footer */}
       {!isMobileFrame && (

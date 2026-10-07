@@ -9,6 +9,15 @@ import {
 
 export const SINGAPORE_BUS_STOPS: BusStop[] = [
   {
+    id: '04121',
+    name: 'Old Hill St Police Stn',
+    road: 'Hill Street',
+    distanceMeters: 120,
+    directionTowards: 'Towards City Hall / Victoria St / Clarke Quay',
+    mrtInterchange: ['NE5', 'DT20'],
+    services: ['2', '12', '12e', '33', '147', '190', '7'],
+  },
+  {
     id: '09023',
     name: 'Opp Orchard Stn',
     road: 'Orchard Boulevard',
