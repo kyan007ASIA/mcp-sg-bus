@@ -1,0 +1,6 @@
+{
+  "name": "Singapore Public Transit Expressive",
+  "description": "Authentic Singapore municipal transport arrival tracker, bus route visualizer, and MRT network guide powered by SBS Transit visual identity.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
